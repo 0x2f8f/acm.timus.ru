@@ -1,4 +1,4 @@
-import pprint, sys, math
+import pprint, sys, math, hashlib
 
 """
 f = open('a.in', 'w')
