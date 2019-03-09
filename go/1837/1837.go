@@ -3,11 +3,13 @@ package main
 import (
 	"fmt"
 	"os"
+	"sort"
 )
 
-var isN int //порядковый номер Исенбаева
+var isenbaevNum int //порядковый номер Исенбаева
 
 func main() {
+	isenbaevNum = -1
 	_, err := os.Stat("in.txt")
 	if err == nil {
 		os.Stdin, err = os.OpenFile("in.txt", os.O_RDONLY, 0666)
@@ -16,6 +18,7 @@ func main() {
 	m := make(map[string]int) //асс-ый массив, где ключ - фамилия, значение - порядковый номер
 
 	var n int //кол-во команд
+	var l int //временная переменная для приема значения из канала
 
 	var a, b, c string
 	fmt.Scan(&n)
@@ -40,14 +43,57 @@ func main() {
 		//добавляем в матрицу графа
 		addItemsGraph(graph, m, a, b, c, n)
 	}
-/*
-	for key, value := range m {
-		fmt.Println(key, " ", value)
-	}
 
-	fmt.Println(graph)
-*/
-	fmt.Println(isN)
+	//отсортировать map по алфавиту
+	var keys []string
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	for _, surname := range keys {
+		//fmt.Println("Key:", surname, "Value:", m[surname])
+
+		//берем первую вершину и идём до исенбаева
+		currentNum := m[surname] //номер текущей вершины
+		used := make([]bool, nm, nm) //сгоревшие вершины
+		used[currentNum] = true
+
+		i := 0
+		val := -1
+
+		//объявляем очередь
+		ch := make(chan int, len(m))
+		ch2 := make(chan int, len(m))
+		ch <- currentNum
+
+		for val==-1 {
+			currentNum = <- ch
+			//fmt.Println(currentNum, i )
+			if currentNum != isenbaevNum {
+				addChildren(currentNum, ch2, graph, used)
+			} else {
+				val = i
+			}
+
+			if len(ch) == 0 {
+
+				for len(ch2)>0 {
+					l = <- ch2
+					ch <- l
+				}
+				i++
+				if len(ch) == 0 && val==-1 {
+					val = -2
+				}
+			}
+		}
+
+		if val != -2 {
+			fmt.Println(surname, val)
+		} else {
+			fmt.Println(surname, "undefined")
+		}
+	}
 }
 
 //добавление фамилии в справочник
@@ -56,7 +102,7 @@ func addItemMap(m map[string]int, f string) {
 	if !isset {
 		m[f] = len(m)
 		if f == "Isenbaev" {
-			isN = m[f]
+			isenbaevNum = m[f]
 		}
 	}
 }
@@ -75,4 +121,14 @@ func addItemsGraph(graph [][]bool, m map[string]int, a string, b string, c strin
 
 	graph[kB][kC] = true
 	graph[kC][kB] = true
+}
+
+//добавление смежных (дочерних) вершин в очередь
+func addChildren(current int, ch chan int, graph [][]bool, used []bool){
+	for i:=0; i<len(graph[current]); i++ {
+		if graph[current][i]==true && used[i]!=true {
+			used[i] = true
+			ch <- i
+		}
+	}
 }
