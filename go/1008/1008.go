@@ -79,7 +79,7 @@ func main() {
 			if x>0 {
 				x = p.x-1
 				y = p.y
-				tryAdd(x, y, pixels, &used, ch2, &finStr, "T")
+				tryAdd(x, y, pixels, &used, ch2, &finStr, "L")
 			}
 
 			//bottom
