@@ -1,4 +1,5 @@
 .DS_Store
 .idea
-go/.idea/
+.idea/*
+go/.idea
 go/.idea/*
