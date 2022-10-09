@@ -3,3 +3,6 @@
 .idea/*
 go/.idea
 go/.idea/*
+/.idea/*
+src/.idea/*
+out
